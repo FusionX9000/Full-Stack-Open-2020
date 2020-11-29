@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Persons from "./components/Persons";
 import AddPersonForm from "./components/AddPersonForm";
 import Filter from "./components/Filter";
+import personService from "./services/personService";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,10 +11,7 @@ const App = () => {
   const [nameFilter, setNameFilter] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((respose) => {
-      console.log(respose.data);
-      setPersons(respose.data);
-    });
+    personService.getAll().then((initialPersons) => setPersons(initialPersons));
   }, []);
 
   const personsToShow = persons.filter((person) =>
@@ -27,14 +24,31 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    if (persons.find((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+    const existingPerson = persons.find((person) => person.name === newName);
+    if (existingPerson) {
+      const message = `${newName} is already added to phonebook, replace the old number with a new one`;
+      if (window.confirm(message)) {
+        personService
+          .updatePerson(existingPerson.id, {
+            ...existingPerson,
+            number: newNumber,
+          })
+          .then((changedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id === existingPerson.id ? changedPerson : person
+              )
+            );
+          });
+      }
     } else {
       const person = { name: newName, number: newNumber };
-      setPersons(persons.concat(person));
-      setNewName("");
-      setNewNumber("");
+      personService
+        .createPerson(person)
+        .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
     }
+    setNewName("");
+    setNewNumber("");
   };
 
   return (
@@ -51,7 +65,7 @@ const App = () => {
         handleNewNumberChange={handleNewNumberChange}
         addPerson={addPerson}
       />
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} setPersons={setPersons} />
     </div>
   );
 };
