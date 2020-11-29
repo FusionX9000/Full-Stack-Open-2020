@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Axios from "axios";
+import axios from "axios";
 import Persons from "./components/Persons";
 import AddPersonForm from "./components/AddPersonForm";
 import Filter from "./components/Filter";
@@ -11,7 +11,7 @@ const App = () => {
   const [nameFilter, setNameFilter] = useState("");
 
   useEffect(() => {
-    Axios.get("http://localhost:3001/persons").then((respose) => {
+    axios.get("http://localhost:3001/persons").then((respose) => {
       console.log(respose.data);
       setPersons(respose.data);
     });
