@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Persons from "./components/Persons";
 import AddPersonForm from "./components/AddPersonForm";
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 import personService from "./services/personService";
 
 const App = () => {
@@ -9,14 +10,22 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [nameFilter, setNameFilter] = useState("");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => setPersons(initialPersons));
   }, []);
 
-  const personsToShow = persons.filter((person) =>
-    person.name.toLowerCase().includes(nameFilter)
-  );
+  const autoClose = () =>
+    setTimeout(() => {
+      console.log("calling timeout");
+      return setNotification(null);
+    }, 3000);
+
+  const clearInput = () => {
+    setNewName("");
+    setNewNumber("");
+  };
 
   const handleNameFilterChange = (event) => setNameFilter(event.target.value);
   const handleNewNameChange = (event) => setNewName(event.target.value);
@@ -39,21 +48,63 @@ const App = () => {
                 person.id === existingPerson.id ? changedPerson : person
               )
             );
+            setNotification({
+              message: `${newName}'s number changed to ${newNumber}`,
+              type: "info",
+            });
+          })
+          .catch((error) => {
+            setNotification({
+              message: `${newName} already deleted from server`,
+              type: "error",
+            });
+            setPersons(
+              persons.filter((person) => person.id !== existingPerson.id)
+            );
           });
       }
     } else {
       const person = { name: newName, number: newNumber };
-      personService
-        .createPerson(person)
-        .then((returnedPerson) => setPersons(persons.concat(returnedPerson)));
+      personService.createPerson(person).then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNotification({
+          message: `Added ${newName} to phonebook`,
+          type: "info",
+        });
+      });
     }
-    setNewName("");
-    setNewNumber("");
+    clearInput();
   };
+
+  const deletePerson = (id) => {
+    const personName = persons.find((person) => person.id === id).name;
+    if (window.confirm(`Are you sure want to delete ${personName}`))
+      personService
+        .deletePerson(id)
+        .then((response) => {
+          setPersons(persons.filter((person) => person.id !== id));
+          setNotification({
+            message: `Deleted ${personName} from phonebook`,
+            type: "info",
+          });
+        })
+        .catch((error) => {
+          setNotification({
+            message: `${personName} already deleted from server`,
+            type: "error",
+          });
+          setPersons(persons.filter((person) => person.id !== id));
+        });
+  };
+
+  const personsToShow = persons.filter((person) =>
+    person.name.toLowerCase().includes(nameFilter)
+  );
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} autoClose={autoClose} />
       <Filter
         nameFilter={nameFilter}
         handleNameFilterChange={handleNameFilterChange}
@@ -65,7 +116,7 @@ const App = () => {
         handleNewNumberChange={handleNewNumberChange}
         addPerson={addPerson}
       />
-      <Persons persons={personsToShow} setPersons={setPersons} />
+      <Persons persons={personsToShow} deletePerson={deletePerson} />
     </div>
   );
 };
