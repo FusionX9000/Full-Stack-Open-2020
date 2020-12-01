@@ -3,7 +3,7 @@ import Persons from "./components/Persons";
 import AddPersonForm from "./components/AddPersonForm";
 import Filter from "./components/Filter";
 import Notification from "./components/Notification";
-import personService from "./services/personService";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
