@@ -25,7 +25,8 @@ const App = () => {
       date: new Date().toISOString(),
       important: Math.random() < 0.5,
     };
-    noteService.post(noteObject).then((returnedNote) => {
+    console.log(noteObject);
+    noteService.create(noteObject).then((returnedNote) => {
       setNotes(notes.concat(returnedNote));
       setNewNote("");
     });
