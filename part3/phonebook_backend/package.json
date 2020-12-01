@@ -7,7 +7,7 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "build:ui": "Remove-Item -Recurse -ErrorAction ignore build && Set-Location '~/Desktop/Projects/Full Stack Open 2020/part2/phonebook' && npm run build --prod && Move-Item build ~/Desktop/phonebook_backend",
+    "build:ui": "$(If(Test-Path build) {Remove-Item -Recurse -Force build} else {$true}) && Set-Location '~/Desktop/Projects/Full Stack Open 2020/part2/phonebook' && npm run build --prod && Move-Item build ~/Desktop/phonebook_backend",
     "deploy": "git push heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail"
