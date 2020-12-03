@@ -82,6 +82,7 @@ const App = () => {
       personService
         .deletePerson(id)
         .then((response) => {
+          console.log(response);
           setPersons(persons.filter((person) => person.id !== id));
           setNotification({
             message: `Deleted ${personName} from phonebook`,
