@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title":"The Hitchhiker's Guide to the Galaxy",
+    "author":"Douglas Adams",
+    "url":"http://xyz.com",
+    "likes": 42
+}
