@@ -10,6 +10,7 @@ mongoose
     useUnifiedTopology: true,
     useCreateIndex: true,
   })
+  // eslint-disable-next-line no-unused-vars
   .then((result) => console.log("connected to MongoDB"))
   .catch((error) => console.log("error connecting to MongoDB", error.message));
 

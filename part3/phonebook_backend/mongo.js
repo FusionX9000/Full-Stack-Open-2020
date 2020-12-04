@@ -31,6 +31,7 @@ if (name) {
     number: number || "",
   });
 
+  // eslint-disable-next-line no-unused-vars
   person.save().then((result) => {
     console.log(`added ${person.name} number ${person.number} to phonebook`);
     mongoose.connection.close();
@@ -42,19 +43,3 @@ if (name) {
     mongoose.connection.close();
   });
 }
-
-// Note.find({}).then((result) => {
-//   result.forEach((note) => console.log(note));
-//   mongoose.connection.close();
-// });
-
-// const note = new Note({
-//   content: "HTML is easy",
-//   date: new Date(),
-//   important: true,
-// });
-
-// note.save().then((result) => {
-//   console.log("note saved!");
-//   mongoose.connection.close();
-// });
