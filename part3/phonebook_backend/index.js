@@ -8,41 +8,12 @@ const Person = require("./models/person");
 morgan.token("body", (request) => JSON.stringify(request.body));
 
 app.use(
-  morgan(
-    ":method :url :status :res[content-length] - :response-time ms :body",
-    {
-      skip: (request, response) => request.method !== "POST",
-    }
-  )
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
+app.use(express.json());
 app.use(cors());
 app.use(express.static("build"));
-
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1,
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2,
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3,
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4,
-  },
-];
-
-app.use(express.json());
 
 app.get("/api/persons", (request, response) => {
   Person.find({}).then((result) => response.json(result));
@@ -66,59 +37,54 @@ app.get("/info", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
+    // eslint-disable-next-line no-unused-vars
     .then((result) => {
-      console.log(result);
       response.status(204).end();
     })
     .catch((error) => next(error));
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
-  response.status(204).end();
 });
 
-// const generateId = () => {
-//   return Math.round(Math.random() * 100000);
-// };
-
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
-  if (!body.name) {
-    response.status(400).json({ error: "name is missing" });
-  }
-  // if (!body.name || !body.number) {
-  //   const missingKeys = [];
-  //   if (!body.name) missingKeys.push("name");
-  //   if (!body.number) missingKeys.push("number");
-  //   return response
-  //     .status(400)
-  //     .json({ error: `${missingKeys.join(", ")} is missing` });
-  // }
-  // if (persons.find((person) => person.name === body.name)) {
-  //   return response.status(400).json({ error: "name must be unique" });
-  // }
   const person = new Person({
     name: body.name,
     number: body.number.toString(),
   });
-  person.save().then((returnedPerson) => response.json(returnedPerson));
+  person
+    .save()
+    .then((returnedPerson) => response.json(returnedPerson))
+    .catch((error) => next(error));
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
   const body = request.body;
-  const person = new Person({
-    _id: request.params.id,
+  const person = {
     name: body.name,
     number: body.number,
-  });
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  };
+  Person.findByIdAndUpdate(request.params.id, person, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
     .then((updatedPerson) => {
-      console.log(updatedPerson);
       if (updatedPerson) {
         response.json(updatedPerson);
       } else response.status(404).end();
     })
     .catch((error) => next(error));
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+  if (error.name === "CastError")
+    return response.status(400).send({ error: "malformed id" });
+  else if (error.name === "ValidationError")
+    return response.status(400).json({ error: error.message });
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => `server running on ${PORT}`);
