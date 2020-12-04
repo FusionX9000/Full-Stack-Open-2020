@@ -18,7 +18,6 @@ const App = () => {
 
   const autoClose = () =>
     setTimeout(() => {
-      console.log("calling timeout");
       return setNotification(null);
     }, 3000);
 
@@ -54,6 +53,9 @@ const App = () => {
             });
           })
           .catch((error) => {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
             setNotification({
               message: `${newName} already deleted from server`,
               type: "error",
@@ -65,13 +67,20 @@ const App = () => {
       }
     } else {
       const person = { name: newName, number: newNumber };
-      personService.createPerson(person).then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
-        setNotification({
-          message: `Added ${newName} to phonebook`,
-          type: "info",
+      personService
+        .createPerson(person)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+          setNotification({
+            message: `Added ${newName} to phonebook`,
+            type: "info",
+          });
+        })
+        .catch((error) => {
+          const errorResponse = error.response.data.error;
+          console.log(errorResponse);
+          setNotification({ message: errorResponse, type: "error" });
         });
-      });
     }
     clearInput();
   };
@@ -82,7 +91,6 @@ const App = () => {
       personService
         .deletePerson(id)
         .then((response) => {
-          console.log(response);
           setPersons(persons.filter((person) => person.id !== id));
           setNotification({
             message: `Deleted ${personName} from phonebook`,
