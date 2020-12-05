@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "test": "cross-env NODE_ENV=development jest --verbose --runInBand",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "build:ui": "$(If(Test-Path build) {Remove-Item -Recurse -Force build} else {$true}) && Push-Location '~/Desktop/Projects/Full Stack Open 2020/examples/part2' && npm run build --prod && Pop-Location && Move-Item '~/Desktop/Projects/Full Stack Open 2020/examples/part2/build' build",
     "deploy": "git push heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
@@ -23,7 +23,8 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "jest": "^26.6.3",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "supertest": "^6.0.1"
   },
   "jest": {
     "testEnvironment": "node"
