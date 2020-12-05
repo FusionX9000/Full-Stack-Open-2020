@@ -1,8 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const app = express();
-const logger = require("./utils/logger");
 const config = require("./utils/config");
+const express = require("express");
+const app = express();
+require("express-async-errors");
+const cors = require("cors");
+const logger = require("./utils/logger");
 const notesRouter = require("./controllers/notes");
 const middleware = require("./utils/middleware");
 const mongoose = require("mongoose");
