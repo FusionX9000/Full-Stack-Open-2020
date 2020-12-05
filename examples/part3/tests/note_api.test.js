@@ -60,6 +60,7 @@ test("a note without content is not added", async () => {
 test("a specific note can be viewed", async () => {
   const notesAtStart = await helper.notesInDb();
   const noteToView = notesAtStart[0];
+  console.log(noteToView);
   const resultNote = await api
     .get(`/api/notes/${noteToView.id}`)
     .expect(200)
