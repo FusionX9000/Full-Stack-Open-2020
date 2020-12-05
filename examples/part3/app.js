@@ -5,6 +5,7 @@ const logger = require("./utils/logger");
 const config = require("./utils/config");
 const notesRouter = require("./controllers/notes");
 const middleware = require("./utils/middleware");
+const mongoose = require("mongoose");
 
 const url = config.MONGODB_URI;
 logger.info("connecting to", url);
@@ -24,9 +25,13 @@ app.use(cors());
 app.use(express.static("build"));
 app.use(middleware.requestLogger);
 
+app.get("/", (request, response) => {
+  response.send("<h1>Hello World</h1>");
+});
+
 app.use("/api/notes", notesRouter);
 
-app.use(middlware.unknownEndpoint);
-app.use(middlware.errorHandler);
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
 
 module.exports = app;
