@@ -54,11 +54,11 @@ const initialBlogs = [
   },
 ];
 
-const nonExistingId = () => {
-  const note = new Note({ title: "willdeletesoon" });
-  note.save();
-  note.remove();
-  return note.toJSON()._id.toString();
+const nonExistingId = async () => {
+  const blog = new Blog({ title: "willdeletesoon", url: "willdeleteasap" });
+  await blog.save();
+  await blog.remove();
+  return blog.toJSON().id;
 };
 
 const blogsInDb = async () => {
