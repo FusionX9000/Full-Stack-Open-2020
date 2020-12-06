@@ -41,9 +41,9 @@ test("new blog is added correctly", async () => {
     .expect(201)
     .expect("Content-Type", /application\/json/);
   const addedBlog = response.body;
-  const notesAtEnd = await helper.blogsInDb();
-  expect(notesAtEnd).toHaveLength(helper.initialBlogs.length + 1);
-  expect(notesAtEnd).toContainEqual(addedBlog);
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
+  expect(blogsAtEnd).toContainEqual(addedBlog);
 });
 
 test("if missing likes default to 0", async () => {
@@ -59,8 +59,6 @@ test("if missing likes default to 0", async () => {
     .expect("Content-Type", /application\/json/);
   const addedBlog = response.body;
   expect(addedBlog).toHaveProperty("likes", 0);
-  // expect(notesAtEnd).toContainEqual(addedBlog);
-  // expect(notesAtEnd).toHaveLength(helper.initialBlogs.length + 1);
 });
 
 test("if response is 400 Bad request when missing title", async () => {
@@ -96,6 +94,38 @@ test("if response is 400 Bad request when missing title and url", async () => {
     .send(blog)
     .expect(400)
     .expect("Content-Type", /application\/json/);
+});
+
+test("if blog is deleted correctly", async () => {
+  const blogAtStart = await helper.blogsInDb();
+  const blogToDelete = blogAtStart[0];
+  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+  const blogAtEnd = await helper.blogsInDb();
+  expect(blogAtEnd.length).toBe(helper.initialBlogs.length - 1);
+  const deletedBlog = await Blog.findById(blogToDelete.id);
+  expect(deletedBlog).toBeNull();
+});
+
+test("if blog is updated correctly", async () => {
+  const blogAtStart = await helper.blogsInDb();
+  const blogToUpdate = blogAtStart[0];
+  blogToUpdate.title = "updatetest" + new Date().toString();
+  const updatedBlog = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(blogToUpdate)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+  expect((await Blog.findById(blogToUpdate.id)).toJSON()).toEqual(blogToUpdate);
+});
+
+test("if error when updating incorrect id", async () => {
+  const blog = {
+    title: "test",
+    author: "test",
+    url: "test",
+  };
+  const id = await helper.nonExistingId();
+  await api.put(`/api/blogs/${id}`).send(blog).expect(404);
 });
 
 afterAll(() => {
