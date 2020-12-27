@@ -29,7 +29,7 @@ describe("when one user exists in db", () => {
       .expect("Content-Type", /application\/json/);
     const usersAtEnd = await helper.usersInDb();
     expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
-    expect(usersAtEnd.map((u) => u.username)).toContain(newUser.username);
+    expect(usersAtEnd.map((u) => u.username)).toContain(newUser.username); //improve
   });
   test("user creation fails if user already exists", async () => {
     const usersAtStart = await helper.usersInDb();
