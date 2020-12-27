@@ -1,6 +1,8 @@
 import axios from "axios";
 const baseUrl = "/api/notes";
 
+let token = null;
+
 const getAll = () => {
   const nonExisting = {
     id: 10000,
@@ -11,14 +13,26 @@ const getAll = () => {
   return axios.get(baseUrl).then((respose) => respose.data.concat(nonExisting));
 };
 
-const create = (noteObject) =>
-  axios.post(baseUrl, noteObject).then((respose) => respose.data);
+const setToken = (newToken) => {
+  token = `bearer ${newToken}`;
+};
 
-const update = (id, noteObject) =>
-  axios.put(`${baseUrl}/${id}`, noteObject).then((respose) => respose.data);
+const create = (noteObject) => {
+  const config = { headers: { Authorization: token } };
+  return axios
+    .post(baseUrl, noteObject, config)
+    .then((respose) => respose.data);
+};
 
+const update = (id, noteObject) => {
+  const config = { headers: { Authorization: token } };
+  return axios
+    .put(`${baseUrl}/${id}`, noteObject, config)
+    .then((respose) => respose.data);
+};
 export default {
   getAll,
   create,
   update,
+  setToken,
 };
