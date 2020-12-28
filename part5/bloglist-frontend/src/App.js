@@ -5,11 +5,30 @@ import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import CreateBlog from "./components/CreateBlog";
 import Notification from "./components/Notification";
+import Togglable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
+
+  const updateBlog = async (blog) => {
+    try {
+      await blogService.update(blog);
+      setBlogs(blogs.map((b) => (b.id === blog.id ? blog : b)));
+    } catch (exception) {
+      console.log(exception);
+    }
+  };
+
+  const removeBlog = async (blog) => {
+    try {
+      await blogService.remove(blog);
+      setBlogs(blogs.filter((b) => b.id !== blog.id));
+    } catch (exception) {
+      console.log(exception);
+    }
+  };
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -36,7 +55,7 @@ const App = () => {
     blogService.setToken(user.token);
     setUser(user);
   };
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     window.localStorage.removeItem("blogAppLoggedUser");
     setUser(null);
     blogService.setToken(null);
@@ -44,7 +63,7 @@ const App = () => {
 
   if (user === null)
     return (
-      <div>
+      <Togglable buttonlabel="login">
         <h2>Login to the application</h2>
         <Notification
           notification={notification}
@@ -54,7 +73,7 @@ const App = () => {
           rememberUser={rememberUser}
           setNotification={setNotification}
         />
-      </div>
+      </Togglable>
     );
 
   return (
@@ -67,9 +86,16 @@ const App = () => {
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
-      <CreateBlog addBlog={addBlog} setNotification={setNotification} />
+      <Togglable buttonlabel="create new blog">
+        <CreateBlog addBlog={addBlog} setNotification={setNotification} />
+      </Togglable>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          updateBlog={updateBlog}
+          removeBlog={removeBlog}
+        />
       ))}
     </div>
   );

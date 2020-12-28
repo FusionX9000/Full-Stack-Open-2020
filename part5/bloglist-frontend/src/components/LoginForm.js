@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 import loginService from "../services/login";
 
@@ -36,6 +37,11 @@ const LoginForm = ({ rememberUser, setNotification }) => {
       </form>
     </div>
   );
+};
+
+LoginForm.propTypes = {
+  rememberUser: PropTypes.func.isRequired,
+  setNotification: PropTypes.func.isRequired,
 };
 
 export default LoginForm;
