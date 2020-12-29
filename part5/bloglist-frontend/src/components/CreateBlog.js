@@ -1,38 +1,33 @@
 import React, { useState } from "react";
-import blogService from "../services/blogs";
 
-const CreateBlog = ({ addBlog, setNotification }) => {
+const CreateBlog = ({ addBlog }) => {
   const [author, setAuthor] = useState("");
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
 
-  const handleAddBlog = async (event) => {
+  const handleAddBlog = (event) => {
     event.preventDefault();
     const blog = {
       author,
       title,
       url,
     };
-    try {
-      const returnedBlog = await blogService.add(blog);
-      addBlog(returnedBlog);
-      setNotification({
-        message: `a new blog ${blog.title} by ${blog.author} added`,
-        type: "info",
-      });
-    } catch (exception) {
-      setNotification({ message: "Error adding blog", type: "error" });
-    }
+    addBlog(blog);
+    setAuthor("");
+    setUrl("");
+    setTitle("");
   };
 
   return (
     <div>
       <form onSubmit={handleAddBlog}>
-        <h2>create</h2>
+        <h2>create blog</h2>
         <div>
           title
           <input
             type="text"
+            id="title"
+            value={title}
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
@@ -40,12 +35,19 @@ const CreateBlog = ({ addBlog, setNotification }) => {
           author
           <input
             type="text"
+            id="author"
+            value={author}
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>
           url
-          <input type="text" onChange={({ target }) => setUrl(target.value)} />
+          <input
+            type="text"
+            id="url"
+            value={url}
+            onChange={({ target }) => setUrl(target.value)}
+          />
         </div>
         <button onClick={handleAddBlog}>create</button>
       </form>

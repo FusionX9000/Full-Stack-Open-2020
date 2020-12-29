@@ -46,8 +46,17 @@ const App = () => {
   const autoCloseNotification = () =>
     setTimeout(() => setNotification(null), 3000);
 
-  const addBlog = (newBlog) => {
-    setBlogs(blogs.concat(newBlog));
+  const addBlog = async (newBlog) => {
+    try {
+      const returnedBlog = await blogService.add(newBlog);
+      setBlogs(blogs.concat(returnedBlog));
+      setNotification({
+        message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+        type: "info",
+      });
+    } catch (exception) {
+      setNotification({ message: "Error adding blog", type: "error" });
+    }
   };
 
   const rememberUser = (user) => {
@@ -63,7 +72,7 @@ const App = () => {
 
   if (user === null)
     return (
-      <Togglable buttonlabel="login">
+      <Togglable buttonLabel="login">
         <h2>Login to the application</h2>
         <Notification
           notification={notification}
@@ -86,8 +95,8 @@ const App = () => {
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
-      <Togglable buttonlabel="create new blog">
-        <CreateBlog addBlog={addBlog} setNotification={setNotification} />
+      <Togglable buttonLabel="create new blog">
+        <CreateBlog addBlog={addBlog} />
       </Togglable>
       {blogs.map((blog) => (
         <Blog
