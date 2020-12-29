@@ -7,8 +7,8 @@ describe("<CreateBlog addBlog={addBlog} />", () => {
   let component;
   const blog = {
     author: "author",
-    // title: "title",
-    // url: "www.url.com",
+    title: "title",
+    url: "www.url.com",
   };
   let addBlog;
   beforeEach(() => {
@@ -31,6 +31,6 @@ describe("<CreateBlog addBlog={addBlog} />", () => {
 
     expect(addBlog.mock.calls).toHaveLength(1);
     const addedBlog = addBlog.mock.calls[0][0];
-    expect(addedBlog).toMatchObject(blog);
+    expect(addedBlog).toEqual(blog);
   });
 });
