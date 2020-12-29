@@ -70,7 +70,6 @@ const App = () => {
       setErrorMessage("Wrong credentials");
       setTimeout(() => setErrorMessage(null), 5000);
     }
-    console.log("logging in with", username, password);
   };
 
   const loginForm = () => (
