@@ -28,6 +28,11 @@ app.use(cors());
 app.use(express.static("build"));
 app.use(middleware.requestLogger);
 
+if (process.env.NODE_ENV === "test") {
+  const testingRouter = require("./controllers/testing");
+  app.use("/api/testing", testingRouter);
+}
+
 app.get("/", (request, response) => {
   response.send("<h1>Hello World</h1>");
 });
