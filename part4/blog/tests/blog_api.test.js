@@ -211,9 +211,8 @@ describe("updating a blog", () => {
       .send(blogToUpdate)
       .expect(200)
       .expect("Content-Type", /application\/json/);
-    expect((await Blog.findById(blogToUpdate.id)).toJSON()).toEqual(
-      blogToUpdate
-    );
+    const processedBlogToUpdate = JSON.parse(JSON.stringify(blogToUpdate));
+    expect(updatedBlog.body).toEqual(processedBlogToUpdate);
   });
 
   test("if error when updating incorrect id", async () => {

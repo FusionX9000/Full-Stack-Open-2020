@@ -18,6 +18,7 @@ blogRouter.post("/", async (request, response) => {
   const user = await User.findById(decodedToken.id);
   const blog = new Blog({ ...request.body, user: user._id });
   const result = await blog.save();
+  console.log(result);
   await User.updateOne({ _id: user._id }, { $push: { blogs: blog._id } });
   // user.blogs.push(result._id);
   // await user.save();
@@ -31,7 +32,13 @@ blogRouter.get("/:id", async (request, response) => {
 
 blogRouter.put("/:id", async (request, response) => {
   const body = request.body;
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, body, {
+  const blog = {
+    author: body.author,
+    title: body.title,
+    url: body.url,
+    likes: body.likes,
+  };
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
     new: true,
     runValidators: true,
     context: "query",
