@@ -15,7 +15,12 @@ const App = () => {
   const updateBlog = async (blog) => {
     try {
       await blogService.update(blog);
-      setBlogs(blogs.map((b) => (b.id === blog.id ? blog : b)));
+      setBlogs(
+        blogs
+          .map((b) => (b.id === blog.id ? blog : b))
+          .sort((a, b) => -(a.likes - b.likes))
+      );
+      console.log(blogs.sort((a, b) => -(a.likes - b.likes)));
     } catch (exception) {
       console.log(exception);
     }
@@ -31,7 +36,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
+    blogService
+      .getAll()
+      .then((blogs) => setBlogs(blogs.sort((a, b) => -(a.likes - b.likes))));
   }, []);
 
   useEffect(() => {
@@ -72,7 +79,7 @@ const App = () => {
 
   if (user === null)
     return (
-      <Togglable buttonLabel="login">
+      <div>
         <h2>Login to the application</h2>
         <Notification
           notification={notification}
@@ -82,7 +89,7 @@ const App = () => {
           rememberUser={rememberUser}
           setNotification={setNotification}
         />
-      </Togglable>
+      </div>
     );
 
   return (
@@ -98,14 +105,16 @@ const App = () => {
       <Togglable buttonLabel="create new blog">
         <CreateBlog addBlog={addBlog} />
       </Togglable>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          updateBlog={updateBlog}
-          removeBlog={removeBlog}
-        />
-      ))}
+      <div className="blogs-list">
+        {blogs.map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            updateBlog={updateBlog}
+            removeBlog={removeBlog}
+          />
+        ))}
+      </div>
     </div>
   );
 };

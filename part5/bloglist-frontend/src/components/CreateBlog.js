@@ -49,7 +49,9 @@ const CreateBlog = ({ addBlog }) => {
             onChange={({ target }) => setUrl(target.value)}
           />
         </div>
-        <button onClick={handleAddBlog}>create</button>
+        <button onClick={handleAddBlog} id="create-button">
+          create
+        </button>
       </form>
     </div>
   );

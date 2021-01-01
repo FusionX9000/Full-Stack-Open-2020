@@ -30,10 +30,15 @@ const Blog = ({ blog, updateBlog, removeBlog }) => {
         </div>
         <div>{blog.url}</div>
         <div>
-          likes {blog.likes} <button onClick={handleLike}>like</button>
+          likes {blog.likes}{" "}
+          <button onClick={handleLike} className="like-button">
+            like
+          </button>
         </div>
         <div>{blog.author}</div>
-        <button onClick={handleRemove}>remove</button>
+        <button onClick={handleRemove} className="remove-button">
+          remove
+        </button>
       </div>
     );
   return (
