@@ -99,7 +99,7 @@ describe("Blog app", function () {
           .then(() => cy.visit("http://localhost:3000/"));
         cy.contains(`${newBlog.title} ${newBlog.author}`).as("blog");
         cy.get("@blog").contains("view").click();
-        cy.get("@blog").get(".remove-button").click();
+        cy.get("@blog").should("not.contain", "remove").click();
         cy.get(".blogs-list").contains(`${newBlog.title}`);
       });
       it("Blogs are sorted by likes", () => {
