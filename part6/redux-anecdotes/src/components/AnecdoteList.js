@@ -7,6 +7,7 @@ const AnecdoteList = () => {
   const anecdotes = useSelector(({ anecdotes }) => anecdotes);
   const filter = useSelector(({ filter }) => filter);
   const dispatch = useDispatch();
+
   const vote = (id) => {
     console.log("vote", id);
     dispatch(voteOn(id));
