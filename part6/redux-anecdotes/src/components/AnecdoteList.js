@@ -8,12 +8,12 @@ const AnecdoteList = () => {
   const filter = useSelector(({ filter }) => filter);
   const dispatch = useDispatch();
 
-  const vote = (id) => {
+  const vote = async (id) => {
     console.log("vote", id);
-    dispatch(voteOn(id));
+    await dispatch(voteOn(id));
     const anecdote = anecdotes.find((anecdote) => anecdote.id === id).content;
     const message = `you voted on ${anecdote}`;
-    dispatch(showNotification(message));
+    dispatch(showNotification(message, 2));
   };
   return (
     <div>

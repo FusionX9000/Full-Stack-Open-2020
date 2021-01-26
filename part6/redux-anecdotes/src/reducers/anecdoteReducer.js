@@ -1,24 +1,16 @@
-export const initializeAnecdotes = (anecdotes) => {
-  return {
-    type: "INIT_ANECDOTES",
-    data: anecdotes,
+import anecdoteService from "../service/anecdotes";
+
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdotes = await anecdoteService.getAll();
+    dispatch({ type: "INIT_ANECDOTES", data: anecdotes });
   };
 };
 
-// const getId = () => (100000 * Math.random()).toFixed(0);
-
-// const asObject = (anecdote) => {
-//   return {
-//     content: anecdote,
-//     id: getId(),
-//     votes: 0,
-//   };
-// };
-
-export const createAnecdote = (data) => {
-  return {
-    type: "NEW_ANECDOTE",
-    data,
+export const createAnecdote = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.createAnecdote(content);
+    dispatch({ type: "NEW_ANECDOTE", data: newAnecdote });
   };
 };
 
@@ -28,10 +20,10 @@ const anecdoteReducer = (state = [], action) => {
   switch (action.type) {
     case "VOTE": {
       const id = action.data.id;
-      const anecdoteVoted = state.find((anec) => anec.id === id);
+      const votedAnecdote = state.find((anec) => anec.id === id);
       const changedAnecdote = {
-        ...anecdoteVoted,
-        votes: anecdoteVoted.votes + 1,
+        ...votedAnecdote,
+        votes: votedAnecdote.votes + 1,
       };
       return state.map((anecdote) =>
         anecdote.id !== id ? anecdote : changedAnecdote
@@ -47,11 +39,21 @@ const anecdoteReducer = (state = [], action) => {
 };
 
 export const voteOn = (id) => {
-  return {
-    type: "VOTE",
-    data: {
-      id,
-    },
+  return async (dispatch, getState) => {
+    const anecdotes = getState().anecdotes;
+    console.log(anecdotes);
+    const votedAnecdote = anecdotes.find((anecdote) => anecdote.id === id);
+    const changedAnecdote = {
+      ...votedAnecdote,
+      votes: votedAnecdote.votes + 1,
+    };
+    await anecdoteService.updateAnecdote(id, changedAnecdote);
+    dispatch({
+      type: "VOTE",
+      data: {
+        id,
+      },
+    });
   };
 };
 
