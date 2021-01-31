@@ -1,0 +1,21 @@
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: rgb(39, 39, 39);
+  color: rgb(156, 156, 156);
+}
+
+a {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+}
+
+a:hover {
+  color: darkgray;
+}
+
+.container {
+  padding: 0px 300px;
+}

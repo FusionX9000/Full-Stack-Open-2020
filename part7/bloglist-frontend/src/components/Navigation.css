@@ -1,0 +1,35 @@
+.navbar-top {
+  background: black;
+  width: 100%;
+}
+
+.navbar-top ul {
+  margin: 0;
+  list-style-type: none;
+  padding: 10px 50px;
+}
+.navbar-top li {
+  display: inline;
+  margin: 20px;
+  color: gray;
+}
+
+.navbar-top li a {
+  text-decoration: none;
+  color: white;
+}
+
+.navbar-top li a:hover {
+  color: grey;
+}
+
+.navbar-top li button {
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  color: white;
+}
+
+.navbar-top li button:hover {
+  cursor: pointer;
+}

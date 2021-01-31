@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbXVyYWkiLCJpZCI6IjVmZTgwZDQ4ZGVmODI5MTc5ODkzNzkxMiIsImlhdCI6MTYwOTQ1MDY2NH0.O5Dd5PL-jAyamQL-CK5dToJ_tC7nlzLwcFXoO9Uq1t0
+
+{
+    "title":"The Hitchhiker's Guide to the Galaxy",
+    "author":"Douglas Adams",
+    "url": "www.test.com"
+}

@@ -1,0 +1,18 @@
+.links-container {
+  margin-top: 30px;
+}
+
+.link-container {
+  margin: 10px 0px;
+  box-shadow: 0px 0px 24px -2px rgba(0, 0, 0, 0.507);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.link-container:hover {
+  background-color: rgba(255, 255, 255, 0.048);
+}
+
+.link-container a:hover {
+  color: white;
+}
