@@ -1,13 +1,10 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { logout } from "../reducers/loginReducer";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import "./Navigation.css";
 
 const Navigation = () => {
   const user = useSelector((store) => store.login);
-  const dispatch = useDispatch();
-  const history = useHistory();
   return (
     <nav className="navbar-top">
       <ul>
@@ -32,7 +29,6 @@ const Navigation = () => {
           </li>
         )}
       </ul>
-      {/* <Link to="/blogs">blogs</Link> */}
     </nav>
   );
 };
