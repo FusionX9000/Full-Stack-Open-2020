@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, setUser } from "./reducers/loginReducer";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 import Users from "./components/Users";
 import User from "./components/User";
 import Blogs from "./components/Blogs";
@@ -33,10 +33,13 @@ const App = () => {
       dispatch(setUser(user));
     }
   }
-  console.log("here", user);
-  const logoutAndRedirect = () => {
-    dispatch(logout());
-    return <Redirect to="/" />;
+  const Logout = () => {
+    const history = useHistory();
+    useEffect(() => {
+      dispatch(logout());
+      history.push("/");
+    }, []);
+    return null;
   };
   return (
     <div>
@@ -60,7 +63,9 @@ const App = () => {
           <Route path="/login">
             {user ? <Redirect to="/" /> : <LoginForm />}
           </Route>
-          <Route path="/logout">{logoutAndRedirect}</Route>
+          <Route path="/logout">
+            <Logout />
+          </Route>
         </Switch>
       </div>
     </div>

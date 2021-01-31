@@ -23,15 +23,7 @@ const Navigation = () => {
             <li>{user.name} logged in</li>
 
             <li>
-              <a
-                href="/logout"
-                onClick={() => {
-                  dispatch(logout());
-                  history.push("/");
-                }}
-              >
-                Logout
-              </a>
+              <a href="/logout">Logout</a>
             </li>
           </span>
         ) : (
