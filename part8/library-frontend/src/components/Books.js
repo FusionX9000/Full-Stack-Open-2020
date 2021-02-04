@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import { ALL_BOOKS } from "../queries";
 
@@ -14,7 +14,7 @@ const Books = (props) => {
     } else {
       getBooks({ variables: { genre } });
     }
-  }, [genre]);
+  }, [genre]); // eslint-disable-line
 
   useEffect(() => {
     if (!result.loading && result.called) {
@@ -29,8 +29,7 @@ const Books = (props) => {
       );
       setGenres(genresSet);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result]);
+  }, [result]); // eslint-disable-line
 
   if (!props.show) {
     return null;
