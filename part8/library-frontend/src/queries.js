@@ -46,6 +46,7 @@ export const CREATE_BOOK = gql`
         id
         name
         born
+        bookCount
       }
       genres
       id

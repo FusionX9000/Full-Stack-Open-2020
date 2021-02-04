@@ -109,6 +109,7 @@ const resolvers = {
         published,
         genres,
       });
+      console.log(newBook);
       try {
         await newBook.save();
         await newBook.populate("author").execPopulate();
