@@ -5,14 +5,29 @@ import { ALL_BOOKS } from "../queries";
 const Books = (props) => {
   const result = useQuery(ALL_BOOKS);
   const [books, setBooks] = useState([]);
+  const [genres, setGenres] = useState(null);
+  const [genre, setGenre] = useState(null);
+
   useEffect(() => {
-    if (result.data) {
-      setBooks(result.data.allBooks);
+    if (!result.loading) {
+      const allBooks = result.data.allBooks;
+      setBooks(allBooks);
+      const genresSet = new Set();
+      allBooks.forEach((book) => {
+        book.genres.forEach((genre) => genresSet.add(genre));
+        setGenres(genresSet);
+      });
     }
-  }, [result]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.loading]);
+
   if (!props.show) {
     return null;
   }
+
+  const handleGenreFilter = (event) => {
+    setGenre(event.target.value);
+  };
 
   return (
     <div>
@@ -25,15 +40,27 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author}</td>
-              <td>{a.published}</td>
-            </tr>
-          ))}
+          {books
+            .filter((book) => genre === null || book.genres.includes(genre))
+            .map((a) => (
+              <tr key={a.title}>
+                <td>{a.title}</td>
+                <td>{a.author.name}</td>
+                <td>{a.published}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
+      {
+        <div>
+          {[...genres].map((genre) => (
+            <button key={genre} onClick={handleGenreFilter} value={genre}>
+              {genre}
+            </button>
+          ))}
+        </div>
+      }
+      <button onClick={() => setGenre(null)}>reset</button>
     </div>
   );
 };

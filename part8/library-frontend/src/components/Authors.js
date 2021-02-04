@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import { ALL_AUTHORS, UPDATE_BIRTHYEAR } from "../queries";
 
@@ -7,15 +7,22 @@ const Authors = (props) => {
   const [updateBorn] = useMutation(UPDATE_BIRTHYEAR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
-  const [authors, setAuthors] = useState([]);
+  console.log(result);
   const [name, setName] = useState("");
   const [born, setBorn] = useState("");
 
+  const authors = (result.data && result.data.allAuthors) || [];
   useEffect(() => {
     if (result.data) {
-      setAuthors(result.data.allAuthors);
+      if (authors.length > 0) {
+        setName(authors[0].name);
+      } else {
+        setName("");
+      }
     }
-  }, [result]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.data]);
+
   if (!props.show) {
     return null;
   }
@@ -38,7 +45,7 @@ const Authors = (props) => {
             <th>books</th>
           </tr>
           {authors.map((a) => (
-            <tr key={a.name}>
+            <tr key={a.id}>
               <td>{a.name}</td>
               <td>{a.born}</td>
               <td>{a.bookCount}</td>
@@ -49,10 +56,11 @@ const Authors = (props) => {
       <h2>Set birthyear</h2>
       <form onSubmit={updateAuthor}>
         <label>name</label>
-        {/* <input value={name} onChange={(e) => setName(e.target.value)} /> */}
-        <select onChange={(e) => setName(e.target.value)}>
+        <select onChange={(e) => setName(e.target.value)} value={name}>
           {authors.map((a) => (
-            <option value={a.name}>{a.name}</option>
+            <option key={a.id} value={a.name}>
+              {a.name}
+            </option>
           ))}
         </select>
         <br />
