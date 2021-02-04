@@ -20,14 +20,9 @@ const Books = (props) => {
     if (!result.loading && result.called) {
       const allBooks = result.data.allBooks;
       setBooks(allBooks);
-      if (genre) {
-        return;
-      }
-      const genresSet = new Set();
-      allBooks.forEach((book) =>
-        book.genres.forEach((genre) => genresSet.add(genre))
-      );
-      setGenres(genresSet);
+      const bookGenres = allBooks.flatMap((book) => book.genres);
+      const updatedGenres = new Set([...(genres || []), ...bookGenres]);
+      setGenres(updatedGenres);
     }
   }, [result]); // eslint-disable-line
 
