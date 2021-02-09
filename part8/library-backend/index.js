@@ -3,12 +3,15 @@ const {
   gql,
   UserInputError,
   AuthenticationError,
+  PubSub,
 } = require("apollo-server");
 const mongoose = require("mongoose");
 const Book = require("./models/Book");
 const Author = require("./models/Author");
 const User = require("./models/User");
 const jwt = require("jsonwebtoken");
+
+const pubsub = new PubSub();
 
 const MONGODB_URI =
   "mongodb+srv://admin:somePass123@cluster0.wbcmq.mongodb.net/library-app?retryWrites=true&w=majority";
@@ -35,6 +38,7 @@ const typeDefs = gql`
   type Token {
     value: String!
   }
+
   type Author {
     name: String!
     id: ID!
@@ -67,6 +71,9 @@ const typeDefs = gql`
     createUser(username: String!, favoriteGenre: String!): User
     login(username: String!, password: String!): Token
   }
+  type Subscription {
+    bookAdded: Book!
+  }
 `;
 
 const resolvers = {
@@ -87,12 +94,12 @@ const resolvers = {
     },
     allAuthors: async () => await Author.find({}),
   },
-  Author: {
-    bookCount: async ({ name }) => {
-      const author = await Author.findOne({ name });
-      return await Book.countDocuments({ author: author.id });
-    },
-  },
+  // Author: {
+  //   bookCount: async ({ name }) => {
+  //     const author = await Author.findOne({ name });
+  //     return await Book.countDocuments({ author: author.id });
+  //   },
+  // },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
       if (!currentUser) throw new AuthenticationError("User not authenticated");
@@ -102,7 +109,8 @@ const resolvers = {
       if (!authorDocument) {
         authorDocument = await new Author({ name: author }).save();
       }
-      console.log(authorDocument);
+      authorDocument.bookCount += 1;
+      await authorDocument.save();
       const newBook = new Book({
         title,
         author: authorDocument.id,
@@ -118,6 +126,7 @@ const resolvers = {
           invalidArgs: args,
         });
       }
+      pubsub.publish("BOOK_ADDED", { bookAdded: newBook });
       return newBook;
     },
     editAuthor: async (root, args, { currentUser }) => {
@@ -150,6 +159,11 @@ const resolvers = {
       return { value: token };
     },
   },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
+    },
+  },
 };
 
 const server = new ApolloServer({
@@ -165,6 +179,7 @@ const server = new ApolloServer({
   },
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`);
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`);
 });

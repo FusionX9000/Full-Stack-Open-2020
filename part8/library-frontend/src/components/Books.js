@@ -1,13 +1,13 @@
-import { useLazyQuery } from "@apollo/client";
+import { useApolloClient, useLazyQuery, useSubscription } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { ALL_BOOKS } from "../queries";
+import { ALL_AUTHORS, ALL_BOOKS, BOOK_ADDED } from "../queries";
 
 const Books = (props) => {
   const [getBooks, result] = useLazyQuery(ALL_BOOKS);
   const [books, setBooks] = useState([]);
   const [genres, setGenres] = useState(null);
   const [genre, setGenre] = useState(null);
-
+  const client = useApolloClient();
   useEffect(() => {
     if (!genre) {
       getBooks();
@@ -25,6 +25,37 @@ const Books = (props) => {
       setGenres(updatedGenres);
     }
   }, [result]); // eslint-disable-line
+
+  const updateBookStoreWith = (addedBook) => {
+    for (const genre of addedBook.genres) {
+      const booksInStore = client.readQuery({
+        query: ALL_BOOKS,
+        variables: { genre },
+      });
+      if (!booksInStore) {
+        continue;
+      }
+      client.writeQuery({
+        query: ALL_BOOKS,
+        variables: { genre },
+        data: { allBooks: booksInStore.allBooks.concat(addedBook) },
+      });
+    }
+    const booksInStore = client.readQuery({
+      query: ALL_BOOKS,
+    });
+    client.writeQuery({
+      query: ALL_BOOKS,
+      data: { allBooks: booksInStore.allBooks.concat(addedBook) },
+    });
+  };
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded;
+      updateBookStoreWith(addedBook);
+    },
+  });
 
   if (!props.show) {
     return null;

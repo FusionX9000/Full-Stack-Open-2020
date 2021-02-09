@@ -1,63 +1,15 @@
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import React, { useState } from "react";
-import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK } from "../queries";
-
-const updateBookStore = (store, response, genre) => {
-  const variables = genre ? { genre } : {};
-  const booksInStore = store.readQuery({
-    query: ALL_BOOKS,
-    variables,
-  });
-  if (!booksInStore || !booksInStore.allBooks) return null;
-  console.log(variables, genre, booksInStore);
-  store.writeQuery({
-    query: ALL_BOOKS,
-    variables,
-    data: {
-      ...booksInStore,
-      allBooks: [...booksInStore.allBooks, response.data.addBook],
-    },
-  });
-  console.log(variables, genre, booksInStore);
-};
-
-const updateAuthorStore = (store, response) => {
-  const authorsInStore = store.readQuery({ query: ALL_AUTHORS });
-  const bookAuthor = response.data.addBook.author;
-  if (!authorsInStore || !authorsInStore.allAuthors) {
-    return;
-  }
-  const isAuthorPresent = authorsInStore.allAuthors.find(
-    (author) => author.name === bookAuthor.name
-  );
-  store.writeQuery({
-    query: ALL_AUTHORS,
-    data: {
-      ...authorsInStore,
-      allAuthors: isAuthorPresent
-        ? authorsInStore.allAuthors.map((author) =>
-            author.name !== bookAuthor.name ? author : bookAuthor
-          )
-        : [...authorsInStore.allAuthors, bookAuthor],
-    },
-  });
-};
+import { CREATE_BOOK } from "../queries";
 
 const NewBook = (props) => {
-  //[{ query: ALL_AUTHORS }, { query: ALL_BOOKS }]
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
 
-  const [addBook] = useMutation(CREATE_BOOK, {
-    update: (store, response) => {
-      updateAuthorStore(store, response);
-      genres.forEach((genre) => updateBookStore(store, response, genre));
-      updateBookStore(store, response);
-    },
-  });
+  const [addBook] = useMutation(CREATE_BOOK);
 
   if (!props.show) {
     return null;
@@ -66,8 +18,6 @@ const NewBook = (props) => {
   const submit = async (event) => {
     event.preventDefault();
 
-    console.log("add book...");
-    console.log({ title, author, published, genres });
     addBook({
       variables: { title, author, published: Number(published), genres },
     });

@@ -5,15 +5,20 @@ import { ALL_BOOKS, ME } from "../queries";
 const Recommed = ({ show }) => {
   const meResult = useQuery(ME);
   const [getBooks, booksResult] = useLazyQuery(ALL_BOOKS);
-  console.log(booksResult);
+
   useEffect(() => {
-    if (meResult.data) {
+    if (meResult.data && meResult.data.me) {
       getBooks({ variables: { genre: meResult.data.me.favoriteGenre } });
     }
   }, [meResult.data]);
   if (!show) {
     return null;
   }
+
+  if (meResult.data && !meResult.data.me) {
+    return <div>Login first</div>;
+  }
+
   if (!booksResult.data) {
     return <div>loading....</div>;
   }

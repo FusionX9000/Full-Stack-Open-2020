@@ -1,16 +1,20 @@
-import { useMutation, useQuery } from "@apollo/client";
+import {
+  useApolloClient,
+  useMutation,
+  useQuery,
+  useSubscription,
+} from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { ALL_AUTHORS, UPDATE_BIRTHYEAR } from "../queries";
+import { ALL_AUTHORS, BOOK_ADDED, UPDATE_BIRTHYEAR } from "../queries";
 
 const Authors = (props) => {
   const result = useQuery(ALL_AUTHORS);
   const [updateBorn] = useMutation(UPDATE_BIRTHYEAR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
-  console.log(result);
   const [name, setName] = useState("");
   const [born, setBorn] = useState("");
-
+  const client = useApolloClient();
   const authors = (result.data && result.data.allAuthors) || [];
   useEffect(() => {
     if (result.data) {
@@ -22,6 +26,24 @@ const Authors = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result.data]);
+
+  const updateAuthorStoreWith = (author) => {
+    const authorsInStore = client.readQuery({ query: ALL_AUTHORS });
+    if (authorsInStore.allAuthors.find((a) => a.id === author.id)) {
+      return;
+    }
+    client.writeQuery({
+      query: ALL_AUTHORS,
+      data: { allAuthors: authorsInStore.allAuthors.concat(author) },
+    });
+  };
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded;
+      updateAuthorStoreWith(addedBook.author);
+    },
+  });
 
   if (!props.show) {
     return null;
