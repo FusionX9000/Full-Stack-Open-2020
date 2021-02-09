@@ -3,9 +3,10 @@ const {
   UserInputError,
   gql,
   AuthenticationError,
+  PubSub,
 } = require("apollo-server");
 const jwt = require("jsonwebtoken");
-
+const pubsub = new PubSub();
 const mongoose = require("mongoose");
 const Person = require("./models/person");
 const User = require("./models/user");
@@ -45,6 +46,7 @@ const typeDefs = gql`
     name: String!
     phone: String
     address: Address!
+    friendOf: [User!]!
     id: ID!
   }
 
@@ -77,6 +79,9 @@ const typeDefs = gql`
     login(username: String!, password: String!): Token
     addAsFriend(name: String!): User
   }
+  type Subscription {
+    personAdded: Person!
+  }
 `;
 
 const resolvers = {
@@ -84,10 +89,12 @@ const resolvers = {
     personCount: () => Person.collection.countDocuments(),
     allPersons: (root, args) => {
       if (!args.phone) {
-        return Person.find({});
+        return Person.find({}).populate("friendsOf");
       }
 
-      return Person.find({ phone: { $exists: args.phone === "YES" } });
+      return Person.find({ phone: { $exists: args.phone === "YES" } }).populate(
+        "friendsOf"
+      );
     },
     findPerson: (root, args) => Person.findOne({ name: args.name }),
     me: (root, args, context) => {
@@ -105,7 +112,6 @@ const resolvers = {
   Mutation: {
     addPerson: async (root, args, context) => {
       const person = new Person({ ...args });
-
       const currentUser = context.currentUser;
 
       if (!currentUser) {
@@ -121,6 +127,8 @@ const resolvers = {
           invalidArgs: args,
         });
       }
+
+      pubsub.publish("PERSON_ADDED", { personAdded: person });
 
       return person;
     },
@@ -179,6 +187,11 @@ const resolvers = {
       return currentUser;
     },
   },
+  Subscription: {
+    personAdded: {
+      subscribe: () => pubsub.asyncIterator(["PERSON_ADDED"]),
+    },
+  },
 };
 
 const server = new ApolloServer({
@@ -198,6 +211,7 @@ const server = new ApolloServer({
   },
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`);
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`);
 });
